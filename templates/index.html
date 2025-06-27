@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Generator</title>
+</head>
+<body>
+    <h1>Image Generator App</h1>
+    <form method="post">
+        <input type="text" name="prompt" placeholder="Enter your prompt" size="50" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <p>Prompts used: {{ count }} / 3</p>
+
+    {% if message %}
+        <p><strong>{{ message }}</strong></p>
+    {% endif %}
+
+    {% if image_url %}
+        <img src="{{ image_url }}" alt="Generated Image">
+    {% endif %}
+</body>
+</html>
