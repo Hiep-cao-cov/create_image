@@ -20,8 +20,8 @@
         }
 
         p {
-            margin-bottom: 30px;
-            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-size: 1em;
             color: #555;
         }
 
@@ -76,18 +76,33 @@
             font-size: 0.9em;
             color: #888;
         }
+
+        #loading-message {
+            display: none;
+            color: #0066cc;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
 
     <h1>AI Image Generator</h1>
-    <p>Enter a creative prompt to generate a stunning image using AI 🎨</p>
+    <p>Enter a creative prompt that contains one of the keywords: <strong>"image"</strong>, <strong>"draw"</strong>, or <strong>"picture"</strong></p>
 
-    <form method="POST">
-        <textarea name="prompt" placeholder="Example: Please input your prompt here ..."></textarea>
+    <form method="POST" onsubmit="showLoadingMessage()">
+        <p><strong>🧮 Attempts remaining: {{ attempts }}</strong></p>
+        <textarea name="prompt" required placeholder='Example: "A picture of a futuristic robot walking through a forest..."'></textarea>
         <br>
         <button type="submit">Generate Image</button>
     </form>
+
+    <div id="loading-message">
+        ⏳ Processing your request... please wait.
+    </div>
+
+    {% if error_message %}
+        <p style="color: red; margin-top: 20px;">{{ error_message }}</p>
+    {% endif %}
 
     {% if image_url %}
     <div class="image-container">
@@ -100,5 +115,11 @@
         <p>Built by ❤️ Hiep COV ❤️ using Flask and OpenAI</p>
     </div>
 
+    <script>
+        function showLoadingMessage() {
+            document.getElementById("loading-message").style.display = "block";
+        }
+    </script>
 </body>
 </html>
+

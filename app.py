@@ -1,43 +1,48 @@
-from flask import Flask, request, render_template, session
+from flask import Flask, render_template, request, session
 import os
-from dotenv import load_dotenv
 import openai
+from dotenv import load_dotenv
 
+# Load environment variables from .env
 load_dotenv()
+
+# Initialize Flask
 app = Flask(__name__)
-app.secret_key = 'your-secret-key'
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "your-fallback-secret")
 
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Set OpenAI API key
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route("/", methods=["GET", "POST"])
 def index():
-    if 'prompt_count' not in session:
-        session['prompt_count'] = 0
+    if "attempts" not in session:
+        session["attempts"] = 3
 
     image_url = None
-    message = None
+    error_message = None
 
-    if request.method == 'POST':
-        if session['prompt_count'] >= 3:
-            message = "You've reached the maximum of 3 prompts."
+    if request.method == "POST":
+        if session["attempts"] <= 0:
+            error_message = "⚠️ You have reached your 3-image limit."
         else:
-            prompt = request.form['prompt']
-            if any(word in prompt.lower() for word in ['image', 'draw', 'picture']):
+            prompt = request.form["prompt"].lower()
+            if any(kw in prompt for kw in ["image", "draw", "picture"]):
                 try:
-                    response = client.images.generate(
+                    response = openai.images.generate(
                         model="dall-e-3",
                         prompt=prompt,
                         n=1,
                         size="1024x1024"
                     )
                     image_url = response.data[0].url
+                    session["attempts"] -= 1
                 except Exception as e:
-                    message = f"Error: {str(e)}"
+                    error_message = f"Error: {str(e)}"
             else:
-                message = "Prompt doesn't request an image. Nothing done."
-            session['prompt_count'] += 1
+                error_message = "❗ Your prompt must contain one of the keywords: 'image', 'draw', or 'picture'."
 
-    return render_template("index.html", image_url=image_url, message=message, count=session['prompt_count'])
+    return render_template("index.html", image_url=image_url, error_message=error_message, attempts=session["attempts"])
+
 
 if __name__ == '__main__':
     app.run(debug=True)
