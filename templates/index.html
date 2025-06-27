@@ -2,23 +2,103 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Image Generator</title>
+    <title>AI Image Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            color: #333;
+        }
+
+        h1 {
+            color: #222;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        form {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1em;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .image-container {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.15);
+        }
+
+        .footer {
+            margin-top: 60px;
+            font-size: 0.9em;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
-    <h1>Image Generator App</h1>
-    <form method="post">
-        <input type="text" name="prompt" placeholder="Enter your prompt" size="50" required>
-        <button type="submit">Submit</button>
+
+    <h1>AI Image Generator</h1>
+    <p>Enter a creative prompt to generate a stunning image using AI 🎨</p>
+
+    <form method="POST">
+        <textarea name="prompt" placeholder="Example: A futuristic city at sunset with flying cars..."></textarea>
+        <br>
+        <button type="submit">Generate Image</button>
     </form>
 
-    <p>Prompts used: {{ count }} / 3</p>
-
-    {% if message %}
-        <p><strong>{{ message }}</strong></p>
-    {% endif %}
-
     {% if image_url %}
+    <div class="image-container">
+        <h2>🖼️ Your AI Image:</h2>
         <img src="{{ image_url }}" alt="Generated Image">
+    </div>
     {% endif %}
+
+    <div class="footer">
+        <p>Built with ❤️ using Flask and OpenAI</p>
+    </div>
+
 </body>
 </html>
