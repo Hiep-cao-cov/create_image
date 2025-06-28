@@ -5,12 +5,14 @@ import openai
 import smtplib
 from email.mime.text import MIMEText
 
+# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+# Allowed team names
 valid_teams = ["team 1", "team 2", "team 3", "team 4", "team 5", "team 6"]
 
 @app.route("/", methods=["GET", "POST"])
@@ -24,7 +26,7 @@ def login():
             session["images"] = []
             return redirect(url_for("index"))
         else:
-            return render_template("login.html", error="Team name is not valid.")
+            return render_template("login.html", error="Invalid team name.")
     return render_template("login.html")
 
 @app.route("/index", methods=["GET", "POST"])
@@ -37,10 +39,10 @@ def index():
 
     if request.method == "POST":
         if session["attempts"] <= 0:
-            error = "You’ve reached your image creation limit (3)."
+            error = "You have used all 3 prompt attempts."
         else:
             prompt = request.form["prompt"].strip()
-            if any(kw in prompt.lower() for kw in ["image", "draw", "picture"]):
+            if any(keyword in prompt.lower() for keyword in ["image", "draw", "picture"]):
                 try:
                     response = openai.images.generate(
                         model="dall-e-3",
@@ -53,9 +55,9 @@ def index():
                     session["prompts"].append(prompt)
                     session["images"].append(image_url)
                 except Exception as e:
-                    error = f"OpenAI error: {str(e)}"
+                    error = f"Image generation error: {str(e)}"
             else:
-                error = "Prompt must include: image, draw, or picture."
+                error = "Prompt must include one of the keywords: image, draw, or picture."
 
     return render_template("index.html",
                            username=session["username"],
@@ -69,14 +71,13 @@ def submit():
     if "username" not in session:
         return redirect(url_for("login"))
 
-    index = int(request.form.get("selected_image", -1))
-
-    if index < 0 or index >= len(session["images"]):
-        flash("Invalid image selected.")
+    selected_index = int(request.form.get("selected_image", -1))
+    if selected_index < 0 or selected_index >= len(session["images"]):
+        flash("Invalid image selection.")
         return redirect(url_for("index"))
 
-    selected_image = session["images"][index]
-    selected_prompt = session["prompts"][index]
+    selected_prompt = session["prompts"][selected_index]
+    selected_image = session["images"][selected_index]
     username = session["username"]
 
     send_email(username, selected_prompt, selected_image)
@@ -89,7 +90,17 @@ def send_email(username, prompt, image_url):
     recipient = os.getenv("EMAIL_RECIPIENT")
 
     subject = f"[Image Submission] From {username}"
-    body = f"Team: {username}\n\nPrompt:\n{prompt}\n\nImage URL:\n{image_url}"
+    body = f"""
+Team Name: {username}
+
+Selected Prompt:
+----------------
+{prompt}
+
+Image URL:
+----------
+{image_url}
+"""
 
     msg = MIMEText(body)
     msg["Subject"] = subject
