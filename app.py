@@ -17,6 +17,8 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 def index():
     if "attempts" not in session:
         session["attempts"] = 3
+        if "prompt_history" not in session:
+            session["prompt_history"] = []
 
     image_url = None
     error_message = None
@@ -36,12 +38,19 @@ def index():
                     )
                     image_url = response.data[0].url
                     session["attempts"] -= 1
+                    session["prompt_history"].append(prompt)
                 except Exception as e:
                     error_message = f"Error: {str(e)}"
             else:
                 error_message = "❗ Your prompt must contain one of the keywords: 'image', 'draw', or 'picture'."
 
-    return render_template("index.html", image_url=image_url, error_message=error_message, attempts=session["attempts"])
+    return render_template(
+        "index.html", 
+        image_url=image_url, 
+        error_message=error_message, 
+        attempts=session["attempts"],
+        prompt_history=session["prompt_history"]
+        )
 
 
 if __name__ == '__main__':
