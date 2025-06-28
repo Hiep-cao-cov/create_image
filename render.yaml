@@ -8,3 +8,11 @@ services:
     envVars:
       - key: OPENAI_API_KEY
         sync: false
+      - key: FLASK_SECRET_KEY
+        sync: false
+      - key: EMAIL_SENDER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: EMAIL_RECIPIENT
+        sync: false
